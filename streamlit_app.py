@@ -1,6 +1,54 @@
-import requests
 import streamlit as st
+import requests
+import signal 
+import sys
 import re
+
+def sigterm_handler(signum, frame):
+    sys.exit(0)
+
+#signal.signal(signal.SIGTERM, sigterm_handler)
+
+def fetch_messages():
+    try:
+        response = requests.get('http://localhost:5002/get_messages')
+        if response.status_code == 200:
+            return response.json()["messages"]
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Failed to fetch messages: {str(e)}")
+        return []
+    
+def fetch_responses():
+    try:
+        response = requests.get('http://localhost:5002/get_responses')
+        if response.status_code == 200:
+            return response.json()["responses"]
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Failed to fetch responses: {str(e)}")
+        return []
+    
+def fetch_RAG_response():
+    try:
+        response = requests.get('http://localhost:5002/get_responses')
+        if response.status_code == 200:
+            return response.json()["responses"]
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Failed to fetch responses: {str(e)}")
+        return []
+
+def display_messages(messages):
+    for message in messages:
+        st.write(f"<span style='color:red'>{message}</span>", unsafe_allow_html=True)
+
+def display_responses(responses):
+    for response in responses:
+        st.write(response, unsafe_allow_html=True)
 
 def clean_response(response):
     # Remove ANSI escape codes
@@ -10,39 +58,36 @@ def clean_response(response):
     response = re.sub(r'⠙|⠹|⠸|⠼|⠴|⠦|⠧|⠇|⠏|⠋', '', response)
     return response.strip()
 
-def get_llama_response(query):
-    data = {'query': query}
-    try:
-        response = requests.post('http://localhost:5001/query', json=data)
-        response.raise_for_status()  # Raise an error for 4xx or 5xx status codes
-        response_data = response.json()
-        if 'response' in response_data:
-            return response_data['response']
-        else:
-            return "Invalid response format"
-    except requests.RequestException as e:
-        return f"Request failed: {e}"
-    except ValueError as e:
-        return f"Failed to parse JSON: {e}"
+def main():
+    st.title('Terminal Text Display(Red) and LLM Response(Black)')
 
-st.title("Llama3 Chat")
+    # Mode selection
+    mode = st.radio("Select Mode:", ("Llama3 Chat", "RAG Mode"))
 
-# Initialize conversation history
-conversation_history = []
+    displayed_messages = []
+    displayed_responses = []
 
-user_input = st.text_input("Enter your query:", key=f"user_input")
-
-if st.button("Submit"):
-    if user_input == "":
-        st.warning("Please enter a query.")
-    else:
-        llama_response = get_llama_response(user_input)
-        cleaned_response = clean_response(llama_response)
+    while True:
+        messages = fetch_messages()
+        new_messages = [msg for msg in messages if msg not in displayed_messages]
         
-        # Append the conversation to history
-        conversation_history.append({'user_query': user_input, 'llama_response': cleaned_response})
+        if new_messages:
+            display_messages(new_messages)
+            displayed_messages.extend(new_messages)
+
+        responses = fetch_responses()
+        cleaned_responses = []
+        for response in responses:
+            response = clean_response(response)
+            cleaned_responses.append(response)
+
+        new_responses = [res for res in cleaned_responses if res not in displayed_responses]
         
-        # Display conversation history
-        for chat in conversation_history:
-            st.write(f"<span style='color:red'>{chat['user_query']}</span>", unsafe_allow_html=True)
-            st.write(f"<span style='color:black'>{chat['llama_response']}</span>", unsafe_allow_html=True)
+        if new_responses:
+            display_responses(new_responses)
+            displayed_responses.extend(new_responses)
+        
+        st.rerun()
+    
+if __name__ == "__main__":
+    main()
