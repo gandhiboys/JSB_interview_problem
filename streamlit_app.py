@@ -30,16 +30,27 @@ def fetch_responses():
     except Exception as e:
         st.error(f"Failed to fetch responses: {str(e)}")
         return []
-    
-def fetch_RAG_response():
+
+def fetch_rag_messages():
     try:
-        response = requests.get('http://localhost:5002/get_responses')
+        response = requests.get('http://localhost:5002/get_rag_messages')
         if response.status_code == 200:
-            return response.json()["responses"]
+            return response.json()["rag_messages"]
         else:
             return []
     except Exception as e:
-        st.error(f"Failed to fetch responses: {str(e)}")
+        st.error(f"Failed to fetch rag messages: {str(e)}")
+        return []
+    
+def fetch_rag_responses():
+    try:
+        response = requests.get('http://localhost:5002/get_rag_responses')
+        if response.status_code == 200:
+            return response.json()["rag_responses"]
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Failed to fetch rag response: {str(e)}")
         return []
 
 def display_messages(messages):
@@ -48,7 +59,7 @@ def display_messages(messages):
 
 def display_responses(responses):
     for response in responses:
-        st.write(response, unsafe_allow_html=True)
+        st.write(f"<span style='color:blue'>{response}</span>", unsafe_allow_html=True)
 
 def clean_response(response):
     # Remove ANSI escape codes
@@ -61,27 +72,25 @@ def clean_response(response):
 def main():
     st.title('Terminal Text Display(Red) and LLM Response(Black)')
 
-    # Mode selection
-    mode = st.radio("Select Mode:", ("Llama3 Chat", "RAG Mode"))
-
     displayed_messages = []
     displayed_responses = []
 
     while True:
-        messages = fetch_messages()
+        messages = fetch_rag_messages()
         new_messages = [msg for msg in messages if msg not in displayed_messages]
         
         if new_messages:
             display_messages(new_messages)
             displayed_messages.extend(new_messages)
 
-        responses = fetch_responses()
-        cleaned_responses = []
-        for response in responses:
-            response = clean_response(response)
-            cleaned_responses.append(response)
+        responses = fetch_rag_responses()
+        # cleaned_responses = []
+        # for response in responses:
+        # print(responses)
+        #     response = clean_response(response)
+        #     cleaned_responses.append(response)
 
-        new_responses = [res for res in cleaned_responses if res not in displayed_responses]
+        new_responses = [res for res in responses if res not in displayed_responses]
         
         if new_responses:
             display_responses(new_responses)

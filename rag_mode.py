@@ -9,8 +9,10 @@ from langchain_community.chat_models import ChatOllama
 from langchain_core.runnables import RunnablePassthrough
 from langchain.retrievers.multi_query import MultiQueryRetriever
 
+global chain
+
 ### PDF INPUT STAGE ###
-def rag(user_query, local_path):
+def rag(local_path):
     # local_path = "WEF_The_Global_Cooperation_Barometer_2024.pdf"
     if local_path:
         loader = UnstructuredPDFLoader(file_path=local_path)
@@ -22,7 +24,7 @@ def rag(user_query, local_path):
 
     ### SPLITTING, CHUNKING AND VECTOR EMBEDDINGS STAGE ###
     # Splitting and chunking
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=7000, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=7500, chunk_overlap=100)
     chunks = text_splitter.split_documents(data)
 
     # Adding to vector database
@@ -61,6 +63,7 @@ def rag(user_query, local_path):
 
     prompt = ChatPromptTemplate.from_template(template)
 
+    global chain
     chain = (
         {"context": retriever, "question": RunnablePassthrough()}
         | prompt
@@ -68,8 +71,11 @@ def rag(user_query, local_path):
         | StrOutputParser()
     )
 
+def rag_response(user_query):
+    global chain
     llm_response = chain.invoke(user_query)
-    print("LLM response: ", llm_response)
+    return llm_response
+    # print("LLM response: ", llm_response)
 
 if __name__ == "__main__":
     rag("summarize this document", "/Users/manasgandhi/Downloads/wework_financial_document.pdf")
