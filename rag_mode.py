@@ -13,7 +13,6 @@ global chain
 
 ### PDF INPUT STAGE ###
 def rag(local_path):
-    # local_path = "WEF_The_Global_Cooperation_Barometer_2024.pdf"
     if local_path:
         loader = UnstructuredPDFLoader(file_path=local_path)
         data = loader.load()
@@ -74,9 +73,7 @@ def rag(local_path):
 def rag_response(user_query):
     global chain
     llm_response = chain.invoke(user_query)
-    print("LLM response: ", llm_response)
     return llm_response
-    # print("LLM response: ", llm_response)
 
 if __name__ == "__main__":
     rag("summarize this document", "/Users/manasgandhi/Downloads/wework_financial_document.pdf")
