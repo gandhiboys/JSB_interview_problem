@@ -83,7 +83,6 @@ def input_thread():
             pygame.mixer.music.play()
             while pygame.mixer.music.get_busy():
                 continue
-        
         else:
             messages.append(text)
             cmd = ['ollama', 'run', 'llama3', text]
