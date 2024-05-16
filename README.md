@@ -42,7 +42,7 @@ The software system consists of two primary modes:
 ## Video Demo
 A video demonstration showcasing the functionality of the software and its various features has been provided. In the demo, the software is run from the terminal as per the requirements. The video covers mode switching, back-and-forth communication with the LLM, activation of RAG mode, interaction via audio input (extra credit), and text-to-speech output (extra credit).
 
-You can watch the video demo here - 
+You can watch the video demo here - https://drive.google.com/drive/folders/1h7xG_FeUPo5A1Um2U5ReD_ULPmRvuXWK?usp=sharing
 
 For any further clarification or questions, please feel free to reach out.
 
