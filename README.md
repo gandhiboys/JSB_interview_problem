@@ -47,4 +47,4 @@ You can watch the video demo here - https://drive.google.com/drive/folders/1h7xG
 For any further clarification or questions, please feel free to reach out.
 
 ## Contact
-my email address - [manasgandhi2@gmail.com](mailto:mgandhi4512@sdsu.edu).
+my email address - [mgandhi4512@sdsu.edu](mailto:mgandhi4512@sdsu.edu).
