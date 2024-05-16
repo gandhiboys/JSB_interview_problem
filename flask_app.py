@@ -11,7 +11,6 @@ app = Flask(__name__)
 messages = []
 responses = []
 
-
 user_query = ""
 pdf_link = ""
 # List to store rag messages and responses
@@ -24,24 +23,30 @@ def input_thread():
     while True:
         # mode = input("Enter the required mode: Communication or Rag")
         text = input("Enter text to display on the web UI: ")
-        if text == "RAG":
+        if text == "RAG START":
+            messages.append(text)
             pdf_link = input("Enter link to the pdf file: ")
             rag(pdf_link)
             while pdf_link:
                 user_query = input("Enter your query: ")
+                if user_query == "RAG STOP":
+                    rag_messages.append(user_query)
+                    break
                 rag_messages.append(user_query)
                 response = rag_response(user_query)
                 rag_responses.append(response)
-
+            # messages.pop()
+            messages.pop()
         else:
             messages.append(text)
             cmd = ['ollama', 'run', 'llama3', text]
             llm_output = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             stdout, _ = llm_output.communicate()
             response = stdout.decode()
+            print("response: " + response)
             responses.append(response)
-
-    
+            
+                
 @app.route('/get_messages', methods=['GET'])
 def get_messages():
     return jsonify({"messages": messages})

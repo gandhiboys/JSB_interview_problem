@@ -24,7 +24,7 @@ def rag(local_path):
 
     ### SPLITTING, CHUNKING AND VECTOR EMBEDDINGS STAGE ###
     # Splitting and chunking
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=7500, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter()
     chunks = text_splitter.split_documents(data)
 
     # Adding to vector database
@@ -74,6 +74,7 @@ def rag(local_path):
 def rag_response(user_query):
     global chain
     llm_response = chain.invoke(user_query)
+    print("LLM response: ", llm_response)
     return llm_response
     # print("LLM response: ", llm_response)
 
